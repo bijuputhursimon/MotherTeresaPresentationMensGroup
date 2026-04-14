@@ -1,833 +1,567 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=5.0" />
-  <title>St. Mother Teresa: Radical Love, Radical Faith</title>
-  
-  <style>
-    :root {
-      --gold: #d4af37;
-      --gold-soft: #f2e2a0;
-      --blue: #08203d;
-      --blue-2: #102d57;
-      --bg: #02060f;
-      --text: #f4f1ea;
-      --muted: #d2d7e2;
-      --line: rgba(212,175,55,0.22);
-      --shadow: 0 16px 36px rgba(0,0,0,0.22);
-    }
-    * { box-sizing: border-box; }
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      font-family: Georgia, "Times New Roman", serif;
-      background:
-        radial-gradient(circle at top, rgba(212,175,55,0.08), transparent 20%),
-        linear-gradient(160deg, #071223 0%, #0b1f3a 55%, #050b16 100%);
-      color: var(--text);
-    }
-    body.desktop-mode {
-      overflow: hidden;
-    }
-    body.mobile-pan-mode {
-      overflow: auto;
-    }
-    .app {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-    header {
-      position: sticky;
-      top: 0;
-      z-index: 20;
-      background: rgba(7,18,35,0.92);
-      backdrop-filter: blur(8px);
-      border-bottom: 1px solid var(--line);
-      padding: 14px 18px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-    }
-    .title-block h1 {
-      font-size: 1.1rem;
-      margin: 0;
-      color: var(--gold);
-    }
-    .title-block p {
-      margin: 4px 0 0;
-      color: var(--muted);
-      font-size: 0.9rem;
-      font-family: Arial, Helvetica, sans-serif;
-    }
-    .controls {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    button {
-      border: none;
-      background: linear-gradient(180deg, #d9b958 0%, #b68b1f 100%);
-      color: #111;
-      padding: 10px 14px;
-      border-radius: 999px;
-      cursor: pointer;
-      font-size: 0.95rem;
-      font-weight: 700;
-      box-shadow: var(--shadow);
-    }
-    button.secondary {
-      background: linear-gradient(180deg, #304a74 0%, #1c3154 100%);
-      color: white;
-    }
-    button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      box-shadow: none;
-    }
-    .counter {
-      font-size: 0.95rem;
-      color: var(--gold-soft);
-      font-weight: 700;
-      min-width: 88px;
-      text-align: center;
-      font-family: Arial, Helvetica, sans-serif;
-    }
-    .mode-note {
-      color: var(--muted);
-      font-family: Arial, Helvetica, sans-serif;
-      font-size: 0.82rem;
-      margin-top: 3px;
-    }
-    main {
-      flex: 1;
-      padding: 18px;
-      position: relative;
-    }
-    .desktop-mode main {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-    }
-    .mobile-pan-mode main {
-      overflow: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-    .slide {
-      display: none;
-      background: linear-gradient(180deg, rgba(255,253,248,0.05), rgba(255,253,248,0.02));
-      border: 1px solid var(--line);
-      border-radius: 24px;
-      box-shadow: var(--shadow);
-      overflow: hidden;
-    }
-    .slide.active { display: grid; }
-    .desktop-mode .slide {
-      width: min(1280px, calc(100vw - 36px));
-      min-height: min(80vh, calc(100vh - 110px));
-    }
-    .slide.layout-two {
-      grid-template-columns: 1.1fr 0.9fr;
-    }
-    .slide.layout-one {
-      grid-template-columns: 1fr;
-    }
-    .panel {
-      padding: 42px 46px;
-    }
-    .panel + .panel {
-      border-left: 1px solid var(--line);
-      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
-    }
-    .eyebrow {
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: var(--gold);
-      font-size: 0.8rem;
-      font-weight: 700;
-      margin-bottom: 14px;
-    }
-    h2 {
-      margin: 0 0 18px;
-      font-size: clamp(1.9rem, 2.7vw, 3rem);
-      line-height: 1.15;
-      color: #fff8e8;
-    }
-    h3 {
-      margin: 26px 0 10px;
-      font-size: 1.15rem;
-      color: var(--gold-soft);
-    }
-    p, li {
-      font-size: 1.08rem;
-      line-height: 1.55;
-      color: #f4f1ea;
-    }
-    ul {
-      margin: 10px 0 0 0;
-      padding-left: 22px;
-    }
-    li { margin: 10px 0; }
-    .quote {
-      margin-top: 24px;
-      padding: 16px 18px;
-      border-left: 4px solid var(--gold);
-      background: rgba(212,175,55,0.10);
-      border-radius: 10px;
-      font-style: italic;
-      color: #fff5db;
-    }
-    .timing {
-      margin-top: 20px;
-      color: var(--muted);
-      font-size: 0.95rem;
-      font-family: Arial, Helvetica, sans-serif;
-    }
-    .note {
-      font-family: Arial, Helvetica, sans-serif;
-      color: var(--muted);
-      font-size: 0.95rem;
-      line-height: 1.5;
-      margin-top: 12px;
-    }
-    .timeline {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0,1fr));
-      gap: 14px;
-      margin-top: 14px;
-    }
-    .timeline div {
-      border: 1px solid var(--line);
-      padding: 14px;
-      border-radius: 14px;
-      background: rgba(255,255,255,0.05);
-    }
-    .timeline strong {
-      display: block;
-      color: var(--gold);
-      margin-bottom: 6px;
-    }
-    .full-list {
-      columns: 2;
-      column-gap: 32px;
-    }
-    .badge {
-      display: inline-block;
-      background: rgba(212,175,55,0.16);
-      color: var(--gold-soft);
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size: 0.85rem;
-      font-family: Arial, Helvetica, sans-serif;
-      font-weight: 700;
-      margin-bottom: 16px;
-      border: 1px solid rgba(212,175,55,0.18);
-    }
-    .video-card {
-      aspect-ratio: 16 / 9;
-      width: 100%;
-      border-radius: 18px;
-      border: 1px solid rgba(212,175,55,0.28);
-      overflow: hidden;
-      box-shadow: var(--shadow);
-      margin-bottom: 16px;
-      background:
-        radial-gradient(circle at center, rgba(212,175,55,0.16), rgba(11,31,58,0.94) 58%),
-        linear-gradient(135deg, #17345f, #091425);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 18px;
-      gap: 16px;
-    }
-    .video-play {
-      width: 84px;
-      height: 84px;
-      border-radius: 50%;
-      background: rgba(212,175,55,0.94);
-      color: #111;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2rem;
-      padding-left: 6px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.24);
-    }
-    .video-card .video-label {
-      color: #fff8e8;
-      font-weight: 700;
-      font-size: 1.08rem;
-    }
-    .footer-tip {
-      text-align: center;
-      color: var(--muted);
-      font-family: Arial, Helvetica, sans-serif;
-      padding: 0 20px 18px;
-      font-size: 0.90rem;
-    }
-    .mobile-pan-mode .slide {
-      width: 1200px;
-      min-height: 780px;
-      margin: 0 0 16px 0;
-    }
-    .mobile-pan-mode .slide.layout-two {
-      grid-template-columns: 1.1fr 0.9fr;
-    }
-    .mobile-pan-mode .panel {
-      padding: 34px 36px;
-    }
-    @media (max-width: 980px) {
-      .controls { gap: 8px; }
-      button { padding: 9px 12px; font-size: 0.9rem; }
-      .footer-tip { padding-bottom: 12px; }
-    }
-  </style>
 
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"><title>Presentation</title>
+    <style>
+        :root{ --gold:#d4af37; --bg:#050b16; --text:#f5f1e8; --line:rgba(212,175,55,0.22); }
+        body, html { margin:0; height:100%; overflow:hidden; background:var(--bg); color:var(--text); font-family:Georgia, serif; }
+        .slide-screen { display:none; height:100vh; width:100vw; box-sizing:border-box; padding:40px; }
+        .slide-screen.active { display:flex; align-items:center; justify-content:center; }
+        .slide-content { display:grid; grid-template-columns:1fr 1fr; width:1280px; max-width:95%; height:85vh; border:1px solid var(--line); border-radius:24px; overflow:hidden; background:rgba(255,255,255,0.02); }
+        
+        /* NEW: Expand text if no video is present */
+        .slide-content.no-video { grid-template-columns: 1fr; max-width: 800px; }
+        
+        .panel { padding:40px; overflow-y:auto; }
+        .panel + .panel { border-left:1px solid var(--line); background:rgba(0,0,0,0.2); }
+        .eyebrow { color:var(--gold); text-transform:uppercase; font-size:12px; font-weight:bold; letter-spacing:2px; margin-bottom:10px; }
+        h1 { font-size:2.8rem; margin:0 0 20px; color:#fff; }
+        .quote { padding:15px; border-left:4px solid var(--gold); background:rgba(212,175,55,0.1); font-style:italic; margin-top:20px; }
+        .video-container { height:100%; display:flex; flex-direction:column; justify-content:center; gap:15px; }
+        .iframe-wrap { aspect-ratio:16/9; width:100%; border:1px solid var(--line); border-radius:12px; overflow:hidden; }
+        iframe { width:100%; height:100%; border:0; }
+        .clip-info { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; font-family: monospace; font-size: 0.85rem; }
+        .info-row { margin-bottom: 5px; display: flex; gap: 10px; }
+        .label { color: var(--gold); min-width: 90px; }
+        .value { color: #aaa; word-break: break-all; }
+        .pop-btn { background:var(--gold); border:none; padding:12px; border-radius:30px; font-weight:bold; cursor:pointer; }
+        .nav-controls { position:fixed; bottom:30px; right:40px; display:flex; gap:15px; z-index:100; }
+        .nav-btn { background:rgba(255,255,255,0.1); color:white; border:1px solid var(--line); padding:10px 25px; border-radius:5px; cursor:pointer; }
+        .counter { position:fixed; bottom:35px; left:40px; color:var(--gold); opacity:0.6; }
+    </style>
 </head>
 <body>
-  <div class="app">
-    <header>
-      <div class="title-block">
-        <h1>St. Mother Teresa: Radical Love, Radical Faith</h1>
-        <p>Projector-ready on PC; on phones/tablets, each slide becomes scrollable and pannable</p>
-      </div>
-      <div class="controls">
-        <button id="prevBtn" class="secondary">◀ Previous</button>
-        <div class="counter" id="counter">1 / 17</div>
-        <button id="nextBtn">Next ▶</button>
-      </div>
-      <div class="mode-note" id="modeNote"></div>
-    </header>
-
-    <main id="deck">
-      <section class="slide layout-two active">
-        <div class="panel">
-          <div class="eyebrow">Opening</div>
-          <h2>Who Was Mother Teresa, Really?</h2>
-          <p>This session is built around a simple method: introduce the key theme briefly, then let Mother Teresa answer in her own words through recorded interviews.</p>
-          <ul>
-            <li>Not merely a symbol of kindness, but a radical disciple.</li>
-            <li>Deeply loved, widely criticized, and often misunderstood.</li>
-            <li>Uniquely relevant because we can still hear her directly.</li>
-          </ul>
-          <div class="quote">“We will let her speak for herself.”</div>
-          <div class="timing">Suggested speaking time: 3–4 minutes</div>
+    
+    <div class="slide-screen active" id="slide-0">
+        <div class="slide-content no-video">
+            <div class="panel">
+                <div class="eyebrow">Opening</div>
+                <h1>Who Was Mother Teresa, Really?</h1>
+                <p>This session introduces the key theme briefly, then lets Mother Teresa answer in her own words through recorded interviews.</p>
+                <ul><li>Not merely a symbol of kindness, but a radical disciple.</li><li>Deeply loved, widely criticized, and often misunderstood.</li><li>Uniquely relevant because we can still hear her directly.</li></ul>
+                <div class="quote">“We will let her speak for herself.”</div>
+            </div>
+            
+            
         </div>
-        <div class="panel">
-          <div class="badge">Session arc</div>
-          <h3>Flow for the hour</h3>
-          <ul>
-            <li>Life and calling</li>
-            <li>Core teachings</li>
-            <li>Criticisms and responses</li>
-            <li>Spiritual darkness and perseverance</li>
-            <li>Application for Catholic men today</li>
-          </ul>
-          <p class="note">Use keyboard arrows or the Previous/Next buttons to move between slides.</p>
+    </div>
+    <div class="slide-screen " id="slide-1">
+        <div class="slide-content no-video">
+            <div class="panel">
+                <div class="eyebrow">Life and calling</div>
+                <h1>Brief Timeline</h1>
+                <p>Her holiness unfolded in the modern world, not in a distant century. Her mission grew from obedience, not institutional strategy.</p>
+                <ul><li>1910: Born in Skopje</li><li>1928-1929: Joins Sisters of Loreto</li><li>1946: Receives the 'call within a call'</li><li>1948: Enters the slums</li><li>1950: Founding of Missionaries of Charity</li><li>1979: Nobel Peace Prize</li><li>1997: Dies in Kolkata</li></ul>
+                
+            </div>
+            
+            
         </div>
-      </section>
-
-      <section class="slide layout-two">
-        <div class="panel">
-          <div class="eyebrow">Life and calling</div>
-          <h2>Brief Timeline</h2>
-          <div class="timeline">
-            <div><strong>1910</strong>Born in Skopje to an Albanian family.</div>
-            <div><strong>1928–1929</strong>Joins the Sisters of Loreto and travels to India.</div>
-            <div><strong>1946</strong>Receives the “call within a call.”</div>
-            <div><strong>1948</strong>Leaves the security of the convent to enter the slums.</div>
-            <div><strong>1950</strong>Founding of the Missionaries of Charity.</div>
-            <div><strong>1979</strong>Receives the Nobel Peace Prize.</div>
-            <div><strong>1997</strong>Dies in Kolkata.</div>
-          </div>
-          <div class="timing">Suggested speaking time: 4 minutes</div>
+    </div>
+    <div class="slide-screen " id="slide-2">
+        <div class="slide-content ">
+            <div class="panel">
+                <div class="eyebrow">Video clip 1</div>
+                <h1>The Radical Leap</h1>
+                <p>She left the safety of convent life and entered the slums with no financial blueprint or worldly guarantee of success.</p>
+                <ul><li>Many thought this was reckless.</li><li>For her, it was obedience.</li><li>A sign of divine providence.</li></ul>
+                
+            </div>
+            
+            
+            <div class="panel">
+                <div class="video-container">
+                    <div class="iframe-wrap">
+                        <iframe src="https://www.youtube.com/embed/wQR79fVFSy8?start=14&end=30&rel=0" allowfullscreen></iframe>
+                    </div>
+                    <div class="clip-info">
+                        <div class="info-row">
+                            <span class="label">Video Link:</span> 
+                            <a href="https://www.youtube.com/watch?v=wQR79fVFSy8&t=14s" target="_blank" class="value link">https://www.youtube.com/watch?v=wQR79fVFSy8&t=14s</a>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Clip Segment:</span> 
+                            <span class="value">00:00:14 — 00:00:30</span>
+                        </div>
+                    </div>
+                    <button class="pop-btn" onclick="openPopup('wQR79fVFSy8', 14, 30)">Play in External Window</button>
+                </div>
+            </div>
         </div>
-        <div class="panel">
-          <h3>Why this matters</h3>
-          <ul>
-            <li>Her holiness unfolded in the modern world, not in a distant century.</li>
-            <li>Her mission grew from obedience, not institutional strategy.</li>
-            <li>The timeline helps frame later questions about her methods and motives.</li>
-          </ul>
+    </div>
+    <div class="slide-screen " id="slide-3">
+        <div class="slide-content ">
+            <div class="panel">
+                <div class="eyebrow">Video clip 2</div>
+                <h1>Fr. Gabri on Her Simplicity</h1>
+                <p>Fr. Gabri interprets what made her unusual: deep certainty that God was with her.</p>
+                <ul><li>A saint is not defined only by miracles.</li><li>A saint faces hardship with peace.</li><li>Simplicity with God is hard to live.</li></ul>
+                
+            </div>
+            
+            
+            <div class="panel">
+                <div class="video-container">
+                    <div class="iframe-wrap">
+                        <iframe src="https://www.youtube.com/embed/wQR79fVFSy8?start=2366&end=2412&rel=0" allowfullscreen></iframe>
+                    </div>
+                    <div class="clip-info">
+                        <div class="info-row">
+                            <span class="label">Video Link:</span> 
+                            <a href="https://www.youtube.com/watch?v=wQR79fVFSy8&t=2366s" target="_blank" class="value link">https://www.youtube.com/watch?v=wQR79fVFSy8&t=2366s</a>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Clip Segment:</span> 
+                            <span class="value">00:39:26 — 00:40:12</span>
+                        </div>
+                    </div>
+                    <button class="pop-btn" onclick="openPopup('wQR79fVFSy8', 2366, 2412)">Play in External Window</button>
+                </div>
+            </div>
         </div>
-      </section>
-
-      <section class="slide layout-two">
-        <div class="panel">
-          <div class="eyebrow">Video clip 1</div>
-          <h2>The Radical Leap</h2>
-          <p>She left the safety of convent life and entered the slums with no financial blueprint, no security, and no worldly guarantee of success.</p>
-          <ul>
-            <li>Many thought this was reckless.</li>
-            <li>For her, it was obedience.</li>
-            <li>This became one of the clearest signs of divine providence in her life.</li>
-          </ul>
-          <div class="timing">Video ID: <strong>wQR79fVFSy8</strong> | Start: <strong>0:14</strong> | End: <strong>0:30</strong></div>
+    </div>
+    <div class="slide-screen " id="slide-4">
+        <div class="slide-content ">
+            <div class="panel">
+                <div class="eyebrow">Core teaching</div>
+                <h1>Love That Hurts</h1>
+                <p>True love costs something. It takes flesh in sacrifice and self-gift.</p>
+                <ul><li>Where do we prefer comfort to love?</li></ul>
+                <div class="quote">“If we really want to love God, we must give until it hurts.”</div>
+            </div>
+            
+            
+            <div class="panel">
+                <div class="video-container">
+                    <div class="iframe-wrap">
+                        <iframe src="https://www.youtube.com/embed/wQR79fVFSy8?start=964&end=992&rel=0" allowfullscreen></iframe>
+                    </div>
+                    <div class="clip-info">
+                        <div class="info-row">
+                            <span class="label">Video Link:</span> 
+                            <a href="https://www.youtube.com/watch?v=wQR79fVFSy8&t=964s" target="_blank" class="value link">https://www.youtube.com/watch?v=wQR79fVFSy8&t=964s</a>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Clip Segment:</span> 
+                            <span class="value">00:16:04 — 00:16:32</span>
+                        </div>
+                    </div>
+                    <button class="pop-btn" onclick="openPopup('wQR79fVFSy8', 964, 992)">Play in External Window</button>
+                </div>
+            </div>
         </div>
-        <div class="panel">
-          
-<div class="video-card">
-  <div class="video-play">▶</div>
-  <div class="video-label">Play clip</div>
-  <button onclick="openClip('wQR79fVFSy8', 14, 30)">Open YouTube clip</button>
-  <div class="note">Video ID: <strong>wQR79fVFSy8</strong> · 0:14 to 0:30</div>
-</div>
-
-          <p class="note">This embed is configured to begin at 0:14 and stop at 0:30.</p>
+    </div>
+    <div class="slide-screen " id="slide-5">
+        <div class="slide-content no-video">
+            <div class="panel">
+                <div class="eyebrow">Core teaching</div>
+                <h1>Sharing, Not Merely Donating</h1>
+                <p>She wanted people to come close enough to the poor that love became personal.</p>
+                <ul><li>Donating can remain distant.</li><li>Sharing is relational.</li><li>The poor are our brothers and sisters.</li></ul>
+                
+            </div>
+            
+            
         </div>
-      </section>
-
-      <section class="slide layout-two">
-        <div class="panel">
-          <div class="eyebrow">Video clip 2</div>
-          <h2>Fr. Gabri on Her Simplicity and Certainty</h2>
-          <p>Fr. Gabri helps interpret what made her unusual: not merely activity, but deep certainty that God was with her.</p>
-          <ul>
-            <li>A saint is not defined only by miracles.</li>
-            <li>A saint faces hardship with peace and trust.</li>
-            <li>Simplicity with God is both easy to describe and hard to live.</li>
-          </ul>
-          <div class="timing">Video ID: <strong>wQR79fVFSy8</strong> | Start: <strong>39:26</strong> | End: <strong>40:12</strong></div>
+    </div>
+    <div class="slide-screen " id="slide-6">
+        <div class="slide-content ">
+            <div class="panel">
+                <div class="eyebrow">Video clip 3</div>
+                <h1>The Hunger for Love</h1>
+                <p>Loneliness and being unwanted can be more destructive than material poverty.</p>
+                <ul><li>The West has its own form of poverty.</li><li>Food cannot address abandonment.</li></ul>
+                
+            </div>
+            
+            
+            <div class="panel">
+                <div class="video-container">
+                    <div class="iframe-wrap">
+                        <iframe src="https://www.youtube.com/embed/nQJ7wLp9lA4?start=130&end=178&rel=0" allowfullscreen></iframe>
+                    </div>
+                    <div class="clip-info">
+                        <div class="info-row">
+                            <span class="label">Video Link:</span> 
+                            <a href="https://www.youtube.com/watch?v=nQJ7wLp9lA4&t=130s" target="_blank" class="value link">https://www.youtube.com/watch?v=nQJ7wLp9lA4&t=130s</a>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Clip Segment:</span> 
+                            <span class="value">00:02:10 — 00:02:58</span>
+                        </div>
+                    </div>
+                    <button class="pop-btn" onclick="openPopup('nQJ7wLp9lA4', 130, 178)">Play in External Window</button>
+                </div>
+            </div>
         </div>
-        <div class="panel">
-          
-<div class="video-card">
-  <div class="video-play">▶</div>
-  <div class="video-label">Play clip</div>
-  <button onclick="openClip('wQR79fVFSy8', 2366, 2412)">Open YouTube clip</button>
-  <div class="note">Video ID: <strong>wQR79fVFSy8</strong> · 39:26 to 40:12</div>
-</div>
-
-          <p class="note">Use this clip to support the theme of full surrender and holy simplicity.</p>
+    </div>
+    <div class="slide-screen " id="slide-7">
+        <div class="slide-content ">
+            <div class="panel">
+                <div class="eyebrow">Video clip 4</div>
+                <h1>Dignity of Every Person</h1>
+                <p>Her first act was to restore the dignity the world had stripped away.</p>
+                <ul><li>Hunger is not only for bread.</li><li>The person in the street is a child of God.</li></ul>
+                
+            </div>
+            
+            
+            <div class="panel">
+                <div class="video-container">
+                    <div class="iframe-wrap">
+                        <iframe src="https://www.youtube.com/embed/wQR79fVFSy8?start=907&end=945&rel=0" allowfullscreen></iframe>
+                    </div>
+                    <div class="clip-info">
+                        <div class="info-row">
+                            <span class="label">Video Link:</span> 
+                            <a href="https://www.youtube.com/watch?v=wQR79fVFSy8&t=907s" target="_blank" class="value link">https://www.youtube.com/watch?v=wQR79fVFSy8&t=907s</a>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Clip Segment:</span> 
+                            <span class="value">00:15:07 — 00:15:45</span>
+                        </div>
+                    </div>
+                    <button class="pop-btn" onclick="openPopup('wQR79fVFSy8', 907, 945)">Play in External Window</button>
+                </div>
+            </div>
         </div>
-      </section>
-
-      <section class="slide layout-two">
-        <div class="panel">
-          <div class="eyebrow">Core teaching</div>
-          <h2>Love That Hurts</h2>
-          <p>For Mother Teresa, love was never sentimental. True love costs something. It takes flesh in sacrifice, inconvenience, and self-gift.</p>
-          <div class="quote">“If we really want to love God, we must give until it hurts.”</div>
-          <div class="timing">Video ID: <strong>wQR79fVFSy8</strong> | Start: <strong>16:04</strong> | End: <strong>16:32</strong></div>
+    </div>
+    <div class="slide-screen " id="slide-8">
+        <div class="slide-content ">
+            <div class="panel">
+                <div class="eyebrow">Video clip 5</div>
+                <h1>One Person at a Time</h1>
+                <p>She refused to wait for global solutions, focusing instead on personal charity.</p>
+                <ul><li>Charity begins with the one before us.</li></ul>
+                
+            </div>
+            
+            
+            <div class="panel">
+                <div class="video-container">
+                    <div class="iframe-wrap">
+                        <iframe src="https://www.youtube.com/embed/mPfUGfSIL-k?start=2744&end=2776&rel=0" allowfullscreen></iframe>
+                    </div>
+                    <div class="clip-info">
+                        <div class="info-row">
+                            <span class="label">Video Link:</span> 
+                            <a href="https://www.youtube.com/watch?v=mPfUGfSIL-k&t=2744s" target="_blank" class="value link">https://www.youtube.com/watch?v=mPfUGfSIL-k&t=2744s</a>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Clip Segment:</span> 
+                            <span class="value">00:45:44 — 00:46:16</span>
+                        </div>
+                    </div>
+                    <button class="pop-btn" onclick="openPopup('mPfUGfSIL-k', 2744, 2776)">Play in External Window</button>
+                </div>
+            </div>
         </div>
-        <div class="panel">
-          
-<div class="video-card">
-  <div class="video-play">▶</div>
-  <div class="video-label">Play clip</div>
-  <button onclick="openClip('wQR79fVFSy8', 964, 992)">Open YouTube clip</button>
-  <div class="note">Video ID: <strong>wQR79fVFSy8</strong> · 16:04 to 16:32</div>
-</div>
-
-          <h3>Reflection prompt</h3>
-          <p class="note">Ask: In our homes, work, and parish life, where do we prefer comfort to love?</p>
+    </div>
+    <div class="slide-screen " id="slide-9">
+        <div class="slide-content ">
+            <div class="panel">
+                <div class="eyebrow">Video clip 6</div>
+                <h1>Love for Jesus</h1>
+                <p>The center of her mission was Christ. She saw Him in the hungry and dying.</p>
+                <ul><li>Not merely social work.</li><li>A response to Jesus in the poor.</li></ul>
+                
+            </div>
+            
+            
+            <div class="panel">
+                <div class="video-container">
+                    <div class="iframe-wrap">
+                        <iframe src="https://www.youtube.com/embed/1u7PKtsJeHA?start=93&end=165&rel=0" allowfullscreen></iframe>
+                    </div>
+                    <div class="clip-info">
+                        <div class="info-row">
+                            <span class="label">Video Link:</span> 
+                            <a href="https://www.youtube.com/watch?v=1u7PKtsJeHA&t=93s" target="_blank" class="value link">https://www.youtube.com/watch?v=1u7PKtsJeHA&t=93s</a>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Clip Segment:</span> 
+                            <span class="value">00:01:33 — 00:02:45</span>
+                        </div>
+                    </div>
+                    <button class="pop-btn" onclick="openPopup('1u7PKtsJeHA', 93, 165)">Play in External Window</button>
+                </div>
+            </div>
         </div>
-      </section>
-
-      <section class="slide layout-two">
-        <div class="panel">
-          <div class="eyebrow">Core teaching</div>
-          <h2>Sharing, Not Merely Donating</h2>
-          <p>Her message goes beyond charitable giving. She wanted people to come close enough to the poor that love became personal.</p>
-          <ul>
-            <li>Donating can remain distant.</li>
-            <li>Sharing is relational and sacrificial.</li>
-            <li>The poor are not a cause; they are our brothers and sisters.</li>
-          </ul>
-          <div class="timing">Suggested speaking time: 2–3 minutes</div>
+    </div>
+    <div class="slide-screen " id="slide-10">
+        <div class="slide-content no-video">
+            <div class="panel">
+                <div class="eyebrow">Controversies</div>
+                <h1>Why Criticisms Exist</h1>
+                <p>Objections often come from a clash of worldviews: secular versus spiritual.</p>
+                <ul><li>Present criticisms honestly.</li><li>Understand the lens of the critic.</li></ul>
+                <div class="quote">“A fair treatment begins by understanding the lens.”</div>
+            </div>
+            
+            
         </div>
-        <div class="panel">
-          <h3>Possible transition</h3>
-          <p>Move from this slide into the next by showing that poverty is not only material. She believed the West also suffers a devastating poverty—the hunger to be loved.</p>
+    </div>
+    <div class="slide-screen " id="slide-11">
+        <div class="slide-content ">
+            <div class="panel">
+                <div class="eyebrow">Video clip 7</div>
+                <h1>Root Causes</h1>
+                <p>Clarifying her vocation to care for the person in front of her now.</p>
+                <ul><li>Defense of natural family planning.</li></ul>
+                
+            </div>
+            
+            
+            <div class="panel">
+                <div class="video-container">
+                    <div class="iframe-wrap">
+                        <iframe src="https://www.youtube.com/embed/nQJ7wLp9lA4?start=258&end=351&rel=0" allowfullscreen></iframe>
+                    </div>
+                    <div class="clip-info">
+                        <div class="info-row">
+                            <span class="label">Video Link:</span> 
+                            <a href="https://www.youtube.com/watch?v=nQJ7wLp9lA4&t=258s" target="_blank" class="value link">https://www.youtube.com/watch?v=nQJ7wLp9lA4&t=258s</a>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Clip Segment:</span> 
+                            <span class="value">00:04:18 — 00:05:51</span>
+                        </div>
+                    </div>
+                    <button class="pop-btn" onclick="openPopup('nQJ7wLp9lA4', 258, 351)">Play in External Window</button>
+                </div>
+            </div>
         </div>
-      </section>
-
-      <section class="slide layout-two">
-        <div class="panel">
-          <div class="eyebrow">Video clip 3</div>
-          <h2>The Hunger for Love</h2>
-          <p>One of her most important insights: material poverty is terrible, but loneliness and being unwanted can be even more destructive.</p>
-          <ul>
-            <li>The West has its own form of poverty.</li>
-            <li>Food can address hunger, but not abandonment.</li>
-            <li>This is highly relevant for family, aging, and parish life today.</li>
-          </ul>
-          <div class="timing">Video ID: <strong>nQJ7wLp9lA4</strong> | Start: <strong>2:10</strong> | End: <strong>2:58</strong></div>
+    </div>
+    <div class="slide-screen " id="slide-12">
+        <div class="slide-content ">
+            <div class="panel">
+                <div class="eyebrow">Video clip 8</div>
+                <h1>Exploiting Poverty?</h1>
+                <p>She rejected treating the suffering like a 'zoo' or spectacle.</p>
+                <ul><li>Suffering is not a spectacle.</li></ul>
+                
+            </div>
+            
+            
+            <div class="panel">
+                <div class="video-container">
+                    <div class="iframe-wrap">
+                        <iframe src="https://www.youtube.com/embed/nQJ7wLp9lA4?start=398&end=439&rel=0" allowfullscreen></iframe>
+                    </div>
+                    <div class="clip-info">
+                        <div class="info-row">
+                            <span class="label">Video Link:</span> 
+                            <a href="https://www.youtube.com/watch?v=nQJ7wLp9lA4&t=398s" target="_blank" class="value link">https://www.youtube.com/watch?v=nQJ7wLp9lA4&t=398s</a>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Clip Segment:</span> 
+                            <span class="value">00:06:38 — 00:07:19</span>
+                        </div>
+                    </div>
+                    <button class="pop-btn" onclick="openPopup('nQJ7wLp9lA4', 398, 439)">Play in External Window</button>
+                </div>
+            </div>
         </div>
-        <div class="panel">
-          
-<div class="video-card">
-  <div class="video-play">▶</div>
-  <div class="video-label">Play clip</div>
-  <button onclick="openClip('nQJ7wLp9lA4', 130, 178)">Open YouTube clip</button>
-  <div class="note">Video ID: <strong>nQJ7wLp9lA4</strong> · 2:10 to 2:58</div>
-</div>
-
+    </div>
+    <div class="slide-screen " id="slide-13">
+        <div class="slide-content ">
+            <div class="panel">
+                <div class="eyebrow">Video clip 9</div>
+                <h1>Abortion and Dignity</h1>
+                <p>Conviction paired with action: adoption, welcome, and care.</p>
+                <ul><li>Every child is wanted by God.</li></ul>
+                
+            </div>
+            
+            
+            <div class="panel">
+                <div class="video-container">
+                    <div class="iframe-wrap">
+                        <iframe src="https://www.youtube.com/embed/wQR79fVFSy8?start=1219&end=1271&rel=0" allowfullscreen></iframe>
+                    </div>
+                    <div class="clip-info">
+                        <div class="info-row">
+                            <span class="label">Video Link:</span> 
+                            <a href="https://www.youtube.com/watch?v=wQR79fVFSy8&t=1219s" target="_blank" class="value link">https://www.youtube.com/watch?v=wQR79fVFSy8&t=1219s</a>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Clip Segment:</span> 
+                            <span class="value">00:20:19 — 00:21:11</span>
+                        </div>
+                    </div>
+                    <button class="pop-btn" onclick="openPopup('wQR79fVFSy8', 1219, 1271)">Play in External Window</button>
+                </div>
+            </div>
         </div>
-      </section>
-
-      <section class="slide layout-two">
-        <div class="panel">
-          <div class="eyebrow">Video clip 4</div>
-          <h2>Dignity of Every Human Person</h2>
-          <p>She did not treat the poor as projects. Her first act was to restore the dignity the world had stripped away.</p>
-          <ul>
-            <li>Hunger is not only for bread.</li>
-            <li>Nakedness is not only lack of clothes.</li>
-            <li>The person in the street is still a child of God.</li>
-          </ul>
-          <div class="timing">Video ID: <strong>wQR79fVFSy8</strong> | Start: <strong>15:07</strong> | End: <strong>15:45</strong></div>
+    </div>
+    <div class="slide-screen " id="slide-14">
+        <div class="slide-content ">
+            <div class="panel">
+                <div class="eyebrow">Video clip 10</div>
+                <h1>Other Religions</h1>
+                <p>Those in her care remained free to practice their own burial customs and faiths.</p>
+                <ul><li>Serving all as children of God.</li></ul>
+                
+            </div>
+            
+            
+            <div class="panel">
+                <div class="video-container">
+                    <div class="iframe-wrap">
+                        <iframe src="https://www.youtube.com/embed/wQR79fVFSy8?start=1753&end=1767&rel=0" allowfullscreen></iframe>
+                    </div>
+                    <div class="clip-info">
+                        <div class="info-row">
+                            <span class="label">Video Link:</span> 
+                            <a href="https://www.youtube.com/watch?v=wQR79fVFSy8&t=1753s" target="_blank" class="value link">https://www.youtube.com/watch?v=wQR79fVFSy8&t=1753s</a>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Clip Segment:</span> 
+                            <span class="value">00:29:13 — 00:29:27</span>
+                        </div>
+                    </div>
+                    <button class="pop-btn" onclick="openPopup('wQR79fVFSy8', 1753, 1767)">Play in External Window</button>
+                </div>
+            </div>
         </div>
-        <div class="panel">
-          
-<div class="video-card">
-  <div class="video-play">▶</div>
-  <div class="video-label">Play clip</div>
-  <button onclick="openClip('wQR79fVFSy8', 907, 945)">Open YouTube clip</button>
-  <div class="note">Video ID: <strong>wQR79fVFSy8</strong> · 15:07 to 15:45</div>
-</div>
-
+    </div>
+    <div class="slide-screen " id="slide-15">
+        <div class="slide-content ">
+            <div class="panel">
+                <div class="eyebrow">Video clip 11</div>
+                <h1>Suffering</h1>
+                <p>Bringing dignity and love into suffering rather than just endurance.</p>
+                <ul><li>Sharing in the passion of Christ.</li></ul>
+                
+            </div>
+            
+            
+            <div class="panel">
+                <div class="video-container">
+                    <div class="iframe-wrap">
+                        <iframe src="https://www.youtube.com/embed/3__jvGa5L6Y?start=160&end=246&rel=0" allowfullscreen></iframe>
+                    </div>
+                    <div class="clip-info">
+                        <div class="info-row">
+                            <span class="label">Video Link:</span> 
+                            <a href="https://www.youtube.com/watch?v=3__jvGa5L6Y&t=160s" target="_blank" class="value link">https://www.youtube.com/watch?v=3__jvGa5L6Y&t=160s</a>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Clip Segment:</span> 
+                            <span class="value">00:02:40 — 00:04:06</span>
+                        </div>
+                    </div>
+                    <button class="pop-btn" onclick="openPopup('3__jvGa5L6Y', 160, 246)">Play in External Window</button>
+                </div>
+            </div>
         </div>
-      </section>
-
-      <section class="slide layout-two">
-        <div class="panel">
-          <div class="eyebrow">Video clip 5</div>
-          <h2>One Person at a Time</h2>
-          <p>A recurring criticism is that she did not “solve the system.” Her answer was that love can disappear when persons are reduced to numbers.</p>
-          <ul>
-            <li>She refused to wait for a perfect global solution.</li>
-            <li>Her work was deliberately personal.</li>
-            <li>Charity begins with the one God puts before us.</li>
-          </ul>
-          <div class="timing">Video ID: <strong>mPfUGfSIL-k</strong> | Start: <strong>45:44</strong> | End: <strong>46:16</strong></div>
+    </div>
+    <div class="slide-screen " id="slide-16">
+        <div class="slide-content ">
+            <div class="panel">
+                <div class="eyebrow">Video clip 12</div>
+                <h1>Providence</h1>
+                <p>Refusing ordinary fundraising to depend radically on God's providence.</p>
+                <ul><li>Radical witness of trust.</li></ul>
+                
+            </div>
+            
+            
+            <div class="panel">
+                <div class="video-container">
+                    <div class="iframe-wrap">
+                        <iframe src="https://www.youtube.com/embed/3__jvGa5L6Y?start=582&end=687&rel=0" allowfullscreen></iframe>
+                    </div>
+                    <div class="clip-info">
+                        <div class="info-row">
+                            <span class="label">Video Link:</span> 
+                            <a href="https://www.youtube.com/watch?v=3__jvGa5L6Y&t=582s" target="_blank" class="value link">https://www.youtube.com/watch?v=3__jvGa5L6Y&t=582s</a>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Clip Segment:</span> 
+                            <span class="value">00:09:42 — 00:11:27</span>
+                        </div>
+                    </div>
+                    <button class="pop-btn" onclick="openPopup('3__jvGa5L6Y', 582, 687)">Play in External Window</button>
+                </div>
+            </div>
         </div>
-        <div class="panel">
-          
-<div class="video-card">
-  <div class="video-play">▶</div>
-  <div class="video-label">Play clip</div>
-  <button onclick="openClip('mPfUGfSIL-k', 2744, 2776)">Open YouTube clip</button>
-  <div class="note">Video ID: <strong>mPfUGfSIL-k</strong> · 45:44 to 46:16</div>
-</div>
-
+    </div>
+    <div class="slide-screen " id="slide-17">
+        <div class="slide-content no-video">
+            <div class="panel">
+                <div class="eyebrow">Deepest lesson</div>
+                <h1>Spiritual Darkness</h1>
+                <p>A prolonged interior darkness, yet total perseverance in service.</p>
+                <ul><li>Living by fidelity, not consolation.</li></ul>
+                <div class="quote">“Faith is not the same as emotional certainty.”</div>
+            </div>
+            
+            
         </div>
-      </section>
-
-      <section class="slide layout-two">
-        <div class="panel">
-          <div class="eyebrow">Video clip 6</div>
-          <h2>Her Drive: Love for Jesus</h2>
-          <p>The center of her mission was not humanitarian image-building. It was Christ. She saw Jesus in the hungry, the dying, the abandoned, and the unwanted.</p>
-          <ul>
-            <li>Not merely “doing good”</li>
-            <li>Not merely “social work”</li>
-            <li>A living response to Jesus in the poor</li>
-          </ul>
-          <div class="timing">Video ID: <strong>1u7PKtsJeHA</strong> | Start: <strong>1:33</strong> | End: <strong>2:45</strong></div>
+    </div>
+    <div class="slide-screen " id="slide-18">
+        <div class="slide-content ">
+            <div class="panel">
+                <div class="eyebrow">Video clip 13</div>
+                <h1>What is a Saint?</h1>
+                <p>Holiness is steadfast union with God in difficulty.</p>
+                <ul><li>Steadfast union with God.</li></ul>
+                
+            </div>
+            
+            
+            <div class="panel">
+                <div class="video-container">
+                    <div class="iframe-wrap">
+                        <iframe src="https://www.youtube.com/embed/wQR79fVFSy8?start=2396&end=2448&rel=0" allowfullscreen></iframe>
+                    </div>
+                    <div class="clip-info">
+                        <div class="info-row">
+                            <span class="label">Video Link:</span> 
+                            <a href="https://www.youtube.com/watch?v=wQR79fVFSy8&t=2396s" target="_blank" class="value link">https://www.youtube.com/watch?v=wQR79fVFSy8&t=2396s</a>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Clip Segment:</span> 
+                            <span class="value">00:39:56 — 00:40:48</span>
+                        </div>
+                    </div>
+                    <button class="pop-btn" onclick="openPopup('wQR79fVFSy8', 2396, 2448)">Play in External Window</button>
+                </div>
+            </div>
         </div>
-        <div class="panel">
-          
-<div class="video-card">
-  <div class="video-play">▶</div>
-  <div class="video-label">Play clip</div>
-  <button onclick="openClip('1u7PKtsJeHA', 93, 165)">Open YouTube clip</button>
-  <div class="note">Video ID: <strong>1u7PKtsJeHA</strong> · 1:33 to 2:45</div>
-</div>
-
+    </div>
+    <div class="slide-screen " id="slide-19">
+        <div class="slide-content no-video">
+            <div class="panel">
+                <div class="eyebrow">Closing</div>
+                <h1>What This Means for Us</h1>
+                <p>Closing with examination: how can we start with one person and one sacrifice?</p>
+                <ul><li>Love your family first.</li><li>See loneliness as poverty.</li><li>Share, do not just donate.</li></ul>
+                <div class="quote">“Where is God asking me to step out?”</div>
+            </div>
+            
+            
         </div>
-      </section>
-
-      <section class="slide layout-two">
-        <div class="panel">
-          <div class="eyebrow">Controversies</div>
-          <h2>Why the Criticisms Exist</h2>
-          <p>Many objections to Mother Teresa come from a deeper clash of worldviews.</p>
-          <ul>
-            <li>Material efficiency versus spiritual meaning</li>
-            <li>Systemic analysis versus person-to-person love</li>
-            <li>Secular moral assumptions versus Catholic convictions about life, suffering, and sexuality</li>
-          </ul>
-          <div class="quote">A fair treatment of criticism begins by understanding the lens through which it is made.</div>
-        </div>
-        <div class="panel">
-          <h3>Use a calm tone here</h3>
-          <p class="note">Present criticisms briefly and honestly. Then move quickly to her own answers. This prevents the session from becoming reactive or defensive.</p>
-        </div>
-      </section>
-
-      <section class="slide layout-two">
-        <div class="panel">
-          <div class="eyebrow">Video clip 7</div>
-          <h2>Does She Ignore the Root Causes?</h2>
-          <p>When challenged about overpopulation and structural causes, she responds by clarifying her vocation: to care for the suffering person in front of her now.</p>
-          <div class="timing">Video ID: <strong>nQJ7wLp9lA4</strong> | Start: <strong>4:18</strong> | End: <strong>5:51</strong></div>
-        </div>
-        <div class="panel">
-          
-<div class="video-card">
-  <div class="video-play">▶</div>
-  <div class="video-label">Play clip</div>
-  <button onclick="openClip('nQJ7wLp9lA4', 258, 351)">Open YouTube clip</button>
-  <div class="note">Video ID: <strong>nQJ7wLp9lA4</strong> · 4:18 to 5:51</div>
-</div>
-
-          <p class="note">This clip also includes her defense of natural family planning and her rejection of abortion.</p>
-        </div>
-      </section>
-
-      <section class="slide layout-two">
-        <div class="panel">
-          <div class="eyebrow">Video clip 8</div>
-          <h2>Does She Exploit Poverty?</h2>
-          <p>She rejects using the poor as spectacle. Her answer is strikingly direct: she did not want the suffering treated like a “zoo.”</p>
-          <div class="timing">Video ID: <strong>nQJ7wLp9lA4</strong> | Start: <strong>6:38</strong> | End: <strong>7:19</strong></div>
-        </div>
-        <div class="panel">
-          
-<div class="video-card">
-  <div class="video-play">▶</div>
-  <div class="video-label">Play clip</div>
-  <button onclick="openClip('nQJ7wLp9lA4', 398, 439)">Open YouTube clip</button>
-  <div class="note">Video ID: <strong>nQJ7wLp9lA4</strong> · 6:38 to 7:19</div>
-</div>
-
-        </div>
-      </section>
-
-      <section class="slide layout-two">
-        <div class="panel">
-          <div class="eyebrow">Video clip 9</div>
-          <h2>Abortion and the Dignity of Life</h2>
-          <p>Her stance was not political branding. It followed directly from her conviction that every child is wanted by God and worthy of love.</p>
-          <ul>
-            <li>She opposed abortion clearly.</li>
-            <li>She paired that conviction with concrete action.</li>
-            <li>Her answer was adoption, welcome, and care.</li>
-          </ul>
-          <div class="timing">Video ID: <strong>wQR79fVFSy8</strong> | Start: <strong>20:19</strong> | End: <strong>21:11</strong></div>
-        </div>
-        <div class="panel">
-          
-<div class="video-card">
-  <div class="video-play">▶</div>
-  <div class="video-label">Play clip</div>
-  <button onclick="openClip('wQR79fVFSy8', 1219, 1271)">Open YouTube clip</button>
-  <div class="note">Video ID: <strong>wQR79fVFSy8</strong> · 20:19 to 21:11</div>
-</div>
-
-        </div>
-      </section>
-
-      <section class="slide layout-two">
-        <div class="panel">
-          <div class="eyebrow">Video clip 10</div>
-          <h2>Other Religions and Conversion</h2>
-          <p>One frequent accusation is forced conversion. In this documentary, the narration explicitly states that those in her care remained free to practice their own religions and burial customs.</p>
-          <div class="timing">Video ID: <strong>wQR79fVFSy8</strong> | Start: <strong>29:13</strong> | End: <strong>29:27</strong></div>
-        </div>
-        <div class="panel">
-          
-<div class="video-card">
-  <div class="video-play">▶</div>
-  <div class="video-label">Play clip</div>
-  <button onclick="openClip('wQR79fVFSy8', 1753, 1767)">Open YouTube clip</button>
-  <div class="note">Video ID: <strong>wQR79fVFSy8</strong> · 29:13 to 29:27</div>
-</div>
-
-          <p class="note">You may also connect this with her broader principle: she served all as children of God.</p>
-        </div>
-      </section>
-
-      <section class="slide layout-two">
-        <div class="panel">
-          <div class="eyebrow">Video clip 11</div>
-          <h2>Suffering</h2>
-          <p>This is where the worldview difference becomes sharpest. Critics often hear only endurance. She speaks instead about sharing in Christ and bringing dignity and love into suffering.</p>
-          <div class="timing">Video ID: <strong>3__jvGa5L6Y</strong> | Start: <strong>2:40</strong> | End: <strong>4:06</strong></div>
-        </div>
-        <div class="panel">
-          
-<div class="video-card">
-  <div class="video-play">▶</div>
-  <div class="video-label">Play clip</div>
-  <button onclick="openClip('3__jvGa5L6Y', 160, 246)">Open YouTube clip</button>
-  <div class="note">Video ID: <strong>3__jvGa5L6Y</strong> · 2:40 to 4:06</div>
-</div>
-
-        </div>
-      </section>
-
-      <section class="slide layout-two">
-        <div class="panel">
-          <div class="eyebrow">Video clip 12</div>
-          <h2>Providence Over Financial Planning</h2>
-          <p>One of the most striking aspects of her mission was her refusal to build it on ordinary fundraising structures. She depended radically on God’s providence.</p>
-          <ul>
-            <li>This was not irresponsibility in her understanding.</li>
-            <li>It was part of her witness.</li>
-            <li>She wanted sharing, not merely institutional giving.</li>
-          </ul>
-          <div class="timing">Video ID: <strong>3__jvGa5L6Y</strong> | Start: <strong>9:42</strong> | End: <strong>11:27</strong></div>
-        </div>
-        <div class="panel">
-          
-<div class="video-card">
-  <div class="video-play">▶</div>
-  <div class="video-label">Play clip</div>
-  <button onclick="openClip('3__jvGa5L6Y', 582, 687)">Open YouTube clip</button>
-  <div class="note">Video ID: <strong>3__jvGa5L6Y</strong> · 9:42 to 11:27</div>
-</div>
-
-        </div>
-      </section>
-
-      <section class="slide layout-two">
-        <div class="panel">
-          <div class="eyebrow">Deepest lesson</div>
-          <h2>Spiritual Darkness and Unwavering Faith</h2>
-          <p>One of the most powerful dimensions of her life was hidden for years: a prolonged interior darkness, and yet total perseverance in service.</p>
-          <ul>
-            <li>She did not live by consolations.</li>
-            <li>She lived by fidelity.</li>
-            <li>This may be the most relevant lesson for men carrying unseen burdens.</li>
-          </ul>
-          <div class="quote">Faith is not the same as emotional certainty.</div>
-        </div>
-        <div class="panel">
-          <h3>Presenter note</h3>
-          <p class="note">You can read a short quotation from her letters here, or simply explain that sainthood often includes dryness, silence, and perseverance without visible consolation.</p>
-        </div>
-      </section>
-
-      <section class="slide layout-two">
-        <div class="panel">
-          <div class="eyebrow">Video clip 13</div>
-          <h2>What Is a Saint?</h2>
-          <p>Fr. Gabri’s framing is an excellent way to move from biography into application. Holiness is not theatrical greatness. It is steadfast union with God in difficulty.</p>
-          <div class="timing">Video ID: <strong>wQR79fVFSy8</strong> | Start: <strong>39:56</strong> | End: <strong>40:48</strong></div>
-        </div>
-        <div class="panel">
-          
-<div class="video-card">
-  <div class="video-play">▶</div>
-  <div class="video-label">Play clip</div>
-  <button onclick="openClip('wQR79fVFSy8', 2396, 2448)">Open YouTube clip</button>
-  <div class="note">Video ID: <strong>wQR79fVFSy8</strong> · 39:56 to 40:48</div>
-</div>
-
-        </div>
-      </section>
-
-      <section class="slide layout-two">
-        <div class="panel">
-          <div class="eyebrow">Closing application</div>
-          <h2>What Does This Mean for Us?</h2>
-          <div class="full-list">
-            <ul>
-              <li>Love your family first.</li>
-              <li>See loneliness as real poverty.</li>
-              <li>Share, do not merely donate.</li>
-              <li>Defend life concretely, not abstractly.</li>
-              <li>Do not wait for perfect clarity before obeying God.</li>
-              <li>Accept that fidelity may include darkness.</li>
-              <li>Start with one person, one act, one sacrifice.</li>
-            </ul>
-          </div>
-          <div class="quote">“Where is God asking me to step out without guarantees?”</div>
-        </div>
-        <div class="panel">
-          <h3>Closing suggestion</h3>
-          <p>End with one minute of silence, a short prayer, or a question for table discussion.</p>
-          <p class="note">This slide is designed to close the session with examination rather than information.</p>
-        </div>
-      </section>
-    </main>
-
-    <div class="footer-tip">Tip: For the smoothest playback, open this file in a browser with internet access so the YouTube embeds can load.</div>
-  </div>
-
-  
-  <script>
-    const slides = Array.from(document.querySelectorAll('.slide'));
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const counter = document.getElementById('counter');
-    const modeNote = document.getElementById('modeNote');
-    let current = 0;
-
-    function isMobilePanMode() {
-      return window.innerWidth < 980;
-    }
-
-    function applyMode() {
-      document.body.classList.toggle('mobile-pan-mode', isMobilePanMode());
-      document.body.classList.toggle('desktop-mode', !isMobilePanMode());
-      modeNote.textContent = isMobilePanMode()
-        ? 'Mobile/tablet mode: drag or scroll to pan across each full slide.'
-        : 'Desktop mode: slide fits the screen for projection.';
-    }
-
-    function showSlide(index) {
-      current = Math.max(0, Math.min(index, slides.length - 1));
-      slides.forEach((slide, i) => slide.classList.toggle('active', i === current));
-      counter.textContent = `${current + 1} / ${slides.length}`;
-      prevBtn.disabled = current === 0;
-      nextBtn.disabled = current === slides.length - 1;
-      const main = document.getElementById('deck');
-      if (isMobilePanMode()) {
-        main.scrollTop = 0;
-        main.scrollLeft = 0;
-      } else {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-    }
-
-    function openClip(id, start, end) {
-      const width = 960;
-      const height = 540;
-      const left = Math.max(0, (window.screen.width - width) / 2);
-      const top = Math.max(0, (window.screen.height - height) / 2);
-      const origin = window.location.origin && window.location.origin !== "null"
-        ? window.location.origin
-        : "https://www.youtube.com";
-      const url = `https://www.youtube.com/embed/${id}?start=${start}&end=${end}&autoplay=1&mute=0&rel=0&origin=${origin}`;
-      window.open(url, 'ytPlayer', `width=${width},height=${height},left=${left},top=${top},menubar=no,status=no,toolbar=no`);
-    }
-
-    prevBtn.addEventListener('click', () => showSlide(current - 1));
-    nextBtn.addEventListener('click', () => showSlide(current + 1));
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') {
-        if (!isMobilePanMode()) e.preventDefault();
-        showSlide(current + 1);
-      }
-      if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
-        if (!isMobilePanMode()) e.preventDefault();
-        showSlide(current - 1);
-      }
-      if (e.key === 'Home') showSlide(0);
-      if (e.key === 'End') showSlide(slides.length - 1);
-    });
-
-    window.addEventListener('resize', () => {
-      const wasMobile = document.body.classList.contains('mobile-pan-mode');
-      applyMode();
-      const nowMobile = document.body.classList.contains('mobile-pan-mode');
-      if (wasMobile !== nowMobile) showSlide(current);
-    });
-
-    applyMode();
-    showSlide(0);
-  </script>
-
+    </div>
+    <div class="counter" id="progress">Slide 1 / 20</div>
+    <div class="nav-controls">
+        <button class="nav-btn" onclick="changeSlide(-1)">← Previous</button>
+        <button class="nav-btn" onclick="changeSlide(1)">Next →</button>
+    </div>
+    <script>
+        let current = 0;
+        const total = 20;
+        function changeSlide(dir) {
+            document.getElementById('slide-' + current).classList.remove('active');
+            current = (current + dir + total) % total;
+            document.getElementById('slide-' + current).classList.add('active');
+            document.getElementById('progress').innerText = 'Slide ' + (current + 1) + ' / ' + total;
+        }
+        function openPopup(id, s, e) {
+            window.open('https://www.youtube.com/embed/'+id+'?start='+s+'&end='+e+'&autoplay=1', 'player', 'width=900,height=500');
+        }
+    </script>
 </body>
 </html>
