@@ -8,23 +8,27 @@
         body, html { margin:0; height:100%; overflow:hidden; background:var(--bg); color:var(--text); font-family:Georgia, serif; }
         .slide-screen { display:none; height:100vh; width:100vw; box-sizing:border-box; padding:40px; }
         .slide-screen.active { display:flex; align-items:center; justify-content:center; }
-        .slide-content { display:grid; grid-template-columns:1fr 1fr; width:1280px; max-width:95%; height:85vh; border:1px solid var(--line); border-radius:24px; overflow:hidden; background:rgba(255,255,255,0.02); }
-        
-        /* NEW: Expand text if no video is present */
+        .slide-content { display:grid; grid-template-columns:1fr 1fr; width:1280px; max-width:95%; height:85vh; border:1px solid var(--line); border-radius:24px; overflow:hidden; background:rgba(255,255,255,0.02); position:relative; }
         .slide-content.no-video { grid-template-columns: 1fr; max-width: 800px; }
-        
-        .panel { padding:40px; overflow-y:auto; }
+        .panel { padding:40px; overflow-y:auto; transition: all 0.3s; }
         .panel + .panel { border-left:1px solid var(--line); background:rgba(0,0,0,0.2); }
         .eyebrow { color:var(--gold); text-transform:uppercase; font-size:12px; font-weight:bold; letter-spacing:2px; margin-bottom:10px; }
         h1 { font-size:2.8rem; margin:0 0 20px; color:#fff; }
         .quote { padding:15px; border-left:4px solid var(--gold); background:rgba(212,175,55,0.1); font-style:italic; margin-top:20px; }
+        
+        /* Video & Theater Mode Logic */
         .video-container { height:100%; display:flex; flex-direction:column; justify-content:center; gap:15px; }
-        .iframe-wrap { aspect-ratio:16/9; width:100%; border:1px solid var(--line); border-radius:12px; overflow:hidden; }
+        .iframe-wrap { aspect-ratio:16/9; width:100%; border:1px solid var(--line); border-radius:12px; overflow:hidden; position:relative; background:#000; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
         iframe { width:100%; height:100%; border:0; }
+        
+        .fullscreen-toggle { position:absolute; top:10px; right:10px; z-index:10; background:rgba(0,0,0,0.6); color:white; border:1px solid var(--gold); padding:5px 10px; border-radius:4px; cursor:pointer; font-size:12px; }
+        .fullscreen-toggle:hover { background:var(--gold); color:black; }
+
+        /* Theater Mode Active State */
+        .iframe-wrap.theater { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; border-radius: 0; border: none; aspect-ratio: auto; }
+
         .clip-info { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; font-family: monospace; font-size: 0.85rem; }
-        .info-row { margin-bottom: 5px; display: flex; gap: 10px; }
-        .label { color: var(--gold); min-width: 90px; }
-        .value { color: #aaa; word-break: break-all; }
+        .label { color: var(--gold); min-width: 90px; display:inline-block; }
         .pop-btn { background:var(--gold); border:none; padding:12px; border-radius:30px; font-weight:bold; cursor:pointer; }
         .nav-controls { position:fixed; bottom:30px; right:40px; display:flex; gap:15px; z-index:100; }
         .nav-btn { background:rgba(255,255,255,0.1); color:white; border:1px solid var(--line); padding:10px 25px; border-radius:5px; cursor:pointer; }
@@ -72,18 +76,13 @@
             
             <div class="panel">
                 <div class="video-container">
-                    <div class="iframe-wrap">
-                        <iframe src="https://www.youtube.com/embed/wQR79fVFSy8?start=14&end=30&rel=0" allowfullscreen></iframe>
+                    <div class="iframe-wrap" id="wrap-2">
+                        <button class="fullscreen-toggle" onclick="toggleTheater('wrap-2')" title="Toggle Fullscreen">⛶ Fullscreen</button>
+                        <iframe src="https://www.youtube.com/embed/wQR79fVFSy8?start=14&end=30&rel=0&enablejsapi=1" allowfullscreen></iframe>
                     </div>
                     <div class="clip-info">
-                        <div class="info-row">
-                            <span class="label">Video Link:</span> 
-                            <a href="https://www.youtube.com/watch?v=wQR79fVFSy8&t=14s" target="_blank" class="value link">https://www.youtube.com/watch?v=wQR79fVFSy8&t=14s</a>
-                        </div>
-                        <div class="info-row">
-                            <span class="label">Clip Segment:</span> 
-                            <span class="value">00:00:14 — 00:00:30</span>
-                        </div>
+                        <div class="info-row"><span class="label">Video Link:</span><a href="https://www.youtube.com/watch?v=wQR79fVFSy8&t=14s" target="_blank" class="value link">https://www.youtube.com/watch?v=wQR79fVFSy8&t=14s</a></div>
+                        <div class="info-row"><span class="label">Clip Segment:</span><span class="value">00:00:14 — 00:00:30</span></div>
                     </div>
                     <button class="pop-btn" onclick="openPopup('wQR79fVFSy8', 14, 30)">Play in External Window</button>
                 </div>
@@ -96,27 +95,22 @@
                 <div class="eyebrow">Video clip 2</div>
                 <h1>Fr. Gabri on Her Simplicity</h1>
                 <p>Fr. Gabri interprets what made her unusual: deep certainty that God was with her.</p>
-                <ul><li>A saint is not defined only by miracles.</li><li>A saint faces hardship with peace.</li><li>Simplicity with God is hard to live.</li></ul>
+                <ul><li>A saint is not defined only by miracles.</li><li>A saint faces hardship with peace.</li><li>Absolutely sure that God was with her.</li></ul>
                 
             </div>
             
             
             <div class="panel">
                 <div class="video-container">
-                    <div class="iframe-wrap">
-                        <iframe src="https://www.youtube.com/embed/wQR79fVFSy8?start=2366&end=2412&rel=0" allowfullscreen></iframe>
+                    <div class="iframe-wrap" id="wrap-3">
+                        <button class="fullscreen-toggle" onclick="toggleTheater('wrap-3')" title="Toggle Fullscreen">⛶ Fullscreen</button>
+                        <iframe src="https://www.youtube.com/embed/wQR79fVFSy8?start=2327&end=2412&rel=0&enablejsapi=1" allowfullscreen></iframe>
                     </div>
                     <div class="clip-info">
-                        <div class="info-row">
-                            <span class="label">Video Link:</span> 
-                            <a href="https://www.youtube.com/watch?v=wQR79fVFSy8&t=2366s" target="_blank" class="value link">https://www.youtube.com/watch?v=wQR79fVFSy8&t=2366s</a>
-                        </div>
-                        <div class="info-row">
-                            <span class="label">Clip Segment:</span> 
-                            <span class="value">00:39:26 — 00:40:12</span>
-                        </div>
+                        <div class="info-row"><span class="label">Video Link:</span><a href="https://www.youtube.com/watch?v=wQR79fVFSy8&t=2327s" target="_blank" class="value link">https://www.youtube.com/watch?v=wQR79fVFSy8&t=2327s</a></div>
+                        <div class="info-row"><span class="label">Clip Segment:</span><span class="value">00:38:47 — 00:40:12</span></div>
                     </div>
-                    <button class="pop-btn" onclick="openPopup('wQR79fVFSy8', 2366, 2412)">Play in External Window</button>
+                    <button class="pop-btn" onclick="openPopup('wQR79fVFSy8', 2327, 2412)">Play in External Window</button>
                 </div>
             </div>
         </div>
@@ -134,20 +128,15 @@
             
             <div class="panel">
                 <div class="video-container">
-                    <div class="iframe-wrap">
-                        <iframe src="https://www.youtube.com/embed/wQR79fVFSy8?start=964&end=992&rel=0" allowfullscreen></iframe>
+                    <div class="iframe-wrap" id="wrap-4">
+                        <button class="fullscreen-toggle" onclick="toggleTheater('wrap-4')" title="Toggle Fullscreen">⛶ Fullscreen</button>
+                        <iframe src="https://www.youtube.com/embed/wQR79fVFSy8?start=952&end=992&rel=0&enablejsapi=1" allowfullscreen></iframe>
                     </div>
                     <div class="clip-info">
-                        <div class="info-row">
-                            <span class="label">Video Link:</span> 
-                            <a href="https://www.youtube.com/watch?v=wQR79fVFSy8&t=964s" target="_blank" class="value link">https://www.youtube.com/watch?v=wQR79fVFSy8&t=964s</a>
-                        </div>
-                        <div class="info-row">
-                            <span class="label">Clip Segment:</span> 
-                            <span class="value">00:16:04 — 00:16:32</span>
-                        </div>
+                        <div class="info-row"><span class="label">Video Link:</span><a href="https://www.youtube.com/watch?v=wQR79fVFSy8&t=952s" target="_blank" class="value link">https://www.youtube.com/watch?v=wQR79fVFSy8&t=952s</a></div>
+                        <div class="info-row"><span class="label">Clip Segment:</span><span class="value">00:15:52 — 00:16:32</span></div>
                     </div>
-                    <button class="pop-btn" onclick="openPopup('wQR79fVFSy8', 964, 992)">Play in External Window</button>
+                    <button class="pop-btn" onclick="openPopup('wQR79fVFSy8', 952, 992)">Play in External Window</button>
                 </div>
             </div>
         </div>
@@ -178,18 +167,13 @@
             
             <div class="panel">
                 <div class="video-container">
-                    <div class="iframe-wrap">
-                        <iframe src="https://www.youtube.com/embed/nQJ7wLp9lA4?start=130&end=178&rel=0" allowfullscreen></iframe>
+                    <div class="iframe-wrap" id="wrap-6">
+                        <button class="fullscreen-toggle" onclick="toggleTheater('wrap-6')" title="Toggle Fullscreen">⛶ Fullscreen</button>
+                        <iframe src="https://www.youtube.com/embed/nQJ7wLp9lA4?start=130&end=178&rel=0&enablejsapi=1" allowfullscreen></iframe>
                     </div>
                     <div class="clip-info">
-                        <div class="info-row">
-                            <span class="label">Video Link:</span> 
-                            <a href="https://www.youtube.com/watch?v=nQJ7wLp9lA4&t=130s" target="_blank" class="value link">https://www.youtube.com/watch?v=nQJ7wLp9lA4&t=130s</a>
-                        </div>
-                        <div class="info-row">
-                            <span class="label">Clip Segment:</span> 
-                            <span class="value">00:02:10 — 00:02:58</span>
-                        </div>
+                        <div class="info-row"><span class="label">Video Link:</span><a href="https://www.youtube.com/watch?v=nQJ7wLp9lA4&t=130s" target="_blank" class="value link">https://www.youtube.com/watch?v=nQJ7wLp9lA4&t=130s</a></div>
+                        <div class="info-row"><span class="label">Clip Segment:</span><span class="value">00:02:10 — 00:02:58</span></div>
                     </div>
                     <button class="pop-btn" onclick="openPopup('nQJ7wLp9lA4', 130, 178)">Play in External Window</button>
                 </div>
@@ -202,25 +186,20 @@
                 <div class="eyebrow">Video clip 4</div>
                 <h1>Dignity of Every Person</h1>
                 <p>Her first act was to restore the dignity the world had stripped away.</p>
-                <ul><li>Hunger is not only for bread.</li><li>The person in the street is a child of God.</li></ul>
+                <ul><li>Hunger is not only for bread.</li><li>Nakedness is lack of dignity.</li><li>You and I have taken it from him.</li><li>The person in the street is a child of God.</li></ul>
                 
             </div>
             
             
             <div class="panel">
                 <div class="video-container">
-                    <div class="iframe-wrap">
-                        <iframe src="https://www.youtube.com/embed/wQR79fVFSy8?start=907&end=945&rel=0" allowfullscreen></iframe>
+                    <div class="iframe-wrap" id="wrap-7">
+                        <button class="fullscreen-toggle" onclick="toggleTheater('wrap-7')" title="Toggle Fullscreen">⛶ Fullscreen</button>
+                        <iframe src="https://www.youtube.com/embed/wQR79fVFSy8?start=907&end=945&rel=0&enablejsapi=1" allowfullscreen></iframe>
                     </div>
                     <div class="clip-info">
-                        <div class="info-row">
-                            <span class="label">Video Link:</span> 
-                            <a href="https://www.youtube.com/watch?v=wQR79fVFSy8&t=907s" target="_blank" class="value link">https://www.youtube.com/watch?v=wQR79fVFSy8&t=907s</a>
-                        </div>
-                        <div class="info-row">
-                            <span class="label">Clip Segment:</span> 
-                            <span class="value">00:15:07 — 00:15:45</span>
-                        </div>
+                        <div class="info-row"><span class="label">Video Link:</span><a href="https://www.youtube.com/watch?v=wQR79fVFSy8&t=907s" target="_blank" class="value link">https://www.youtube.com/watch?v=wQR79fVFSy8&t=907s</a></div>
+                        <div class="info-row"><span class="label">Clip Segment:</span><span class="value">00:15:07 — 00:15:45</span></div>
                     </div>
                     <button class="pop-btn" onclick="openPopup('wQR79fVFSy8', 907, 945)">Play in External Window</button>
                 </div>
@@ -233,25 +212,20 @@
                 <div class="eyebrow">Video clip 5</div>
                 <h1>One Person at a Time</h1>
                 <p>She refused to wait for global solutions, focusing instead on personal charity.</p>
-                <ul><li>Charity begins with the one before us.</li></ul>
+                <ul><li>Charity begins with the one before us.</li><li>She didnt believe in waiting for a perfect global solution.</li></ul>
                 
             </div>
             
             
             <div class="panel">
                 <div class="video-container">
-                    <div class="iframe-wrap">
-                        <iframe src="https://www.youtube.com/embed/mPfUGfSIL-k?start=2744&end=2776&rel=0" allowfullscreen></iframe>
+                    <div class="iframe-wrap" id="wrap-8">
+                        <button class="fullscreen-toggle" onclick="toggleTheater('wrap-8')" title="Toggle Fullscreen">⛶ Fullscreen</button>
+                        <iframe src="https://www.youtube.com/embed/mPfUGfSIL-k?start=2744&end=2776&rel=0&enablejsapi=1" allowfullscreen></iframe>
                     </div>
                     <div class="clip-info">
-                        <div class="info-row">
-                            <span class="label">Video Link:</span> 
-                            <a href="https://www.youtube.com/watch?v=mPfUGfSIL-k&t=2744s" target="_blank" class="value link">https://www.youtube.com/watch?v=mPfUGfSIL-k&t=2744s</a>
-                        </div>
-                        <div class="info-row">
-                            <span class="label">Clip Segment:</span> 
-                            <span class="value">00:45:44 — 00:46:16</span>
-                        </div>
+                        <div class="info-row"><span class="label">Video Link:</span><a href="https://www.youtube.com/watch?v=mPfUGfSIL-k&t=2744s" target="_blank" class="value link">https://www.youtube.com/watch?v=mPfUGfSIL-k&t=2744s</a></div>
+                        <div class="info-row"><span class="label">Clip Segment:</span><span class="value">00:45:44 — 00:46:16</span></div>
                     </div>
                     <button class="pop-btn" onclick="openPopup('mPfUGfSIL-k', 2744, 2776)">Play in External Window</button>
                 </div>
@@ -271,18 +245,13 @@
             
             <div class="panel">
                 <div class="video-container">
-                    <div class="iframe-wrap">
-                        <iframe src="https://www.youtube.com/embed/1u7PKtsJeHA?start=93&end=165&rel=0" allowfullscreen></iframe>
+                    <div class="iframe-wrap" id="wrap-9">
+                        <button class="fullscreen-toggle" onclick="toggleTheater('wrap-9')" title="Toggle Fullscreen">⛶ Fullscreen</button>
+                        <iframe src="https://www.youtube.com/embed/1u7PKtsJeHA?start=93&end=165&rel=0&enablejsapi=1" allowfullscreen></iframe>
                     </div>
                     <div class="clip-info">
-                        <div class="info-row">
-                            <span class="label">Video Link:</span> 
-                            <a href="https://www.youtube.com/watch?v=1u7PKtsJeHA&t=93s" target="_blank" class="value link">https://www.youtube.com/watch?v=1u7PKtsJeHA&t=93s</a>
-                        </div>
-                        <div class="info-row">
-                            <span class="label">Clip Segment:</span> 
-                            <span class="value">00:01:33 — 00:02:45</span>
-                        </div>
+                        <div class="info-row"><span class="label">Video Link:</span><a href="https://www.youtube.com/watch?v=1u7PKtsJeHA&t=93s" target="_blank" class="value link">https://www.youtube.com/watch?v=1u7PKtsJeHA&t=93s</a></div>
+                        <div class="info-row"><span class="label">Clip Segment:</span><span class="value">00:01:33 — 00:02:45</span></div>
                     </div>
                     <button class="pop-btn" onclick="openPopup('1u7PKtsJeHA', 93, 165)">Play in External Window</button>
                 </div>
@@ -315,18 +284,13 @@
             
             <div class="panel">
                 <div class="video-container">
-                    <div class="iframe-wrap">
-                        <iframe src="https://www.youtube.com/embed/nQJ7wLp9lA4?start=258&end=351&rel=0" allowfullscreen></iframe>
+                    <div class="iframe-wrap" id="wrap-11">
+                        <button class="fullscreen-toggle" onclick="toggleTheater('wrap-11')" title="Toggle Fullscreen">⛶ Fullscreen</button>
+                        <iframe src="https://www.youtube.com/embed/nQJ7wLp9lA4?start=258&end=351&rel=0&enablejsapi=1" allowfullscreen></iframe>
                     </div>
                     <div class="clip-info">
-                        <div class="info-row">
-                            <span class="label">Video Link:</span> 
-                            <a href="https://www.youtube.com/watch?v=nQJ7wLp9lA4&t=258s" target="_blank" class="value link">https://www.youtube.com/watch?v=nQJ7wLp9lA4&t=258s</a>
-                        </div>
-                        <div class="info-row">
-                            <span class="label">Clip Segment:</span> 
-                            <span class="value">00:04:18 — 00:05:51</span>
-                        </div>
+                        <div class="info-row"><span class="label">Video Link:</span><a href="https://www.youtube.com/watch?v=nQJ7wLp9lA4&t=258s" target="_blank" class="value link">https://www.youtube.com/watch?v=nQJ7wLp9lA4&t=258s</a></div>
+                        <div class="info-row"><span class="label">Clip Segment:</span><span class="value">00:04:18 — 00:05:51</span></div>
                     </div>
                     <button class="pop-btn" onclick="openPopup('nQJ7wLp9lA4', 258, 351)">Play in External Window</button>
                 </div>
@@ -346,18 +310,13 @@
             
             <div class="panel">
                 <div class="video-container">
-                    <div class="iframe-wrap">
-                        <iframe src="https://www.youtube.com/embed/nQJ7wLp9lA4?start=398&end=439&rel=0" allowfullscreen></iframe>
+                    <div class="iframe-wrap" id="wrap-12">
+                        <button class="fullscreen-toggle" onclick="toggleTheater('wrap-12')" title="Toggle Fullscreen">⛶ Fullscreen</button>
+                        <iframe src="https://www.youtube.com/embed/nQJ7wLp9lA4?start=398&end=439&rel=0&enablejsapi=1" allowfullscreen></iframe>
                     </div>
                     <div class="clip-info">
-                        <div class="info-row">
-                            <span class="label">Video Link:</span> 
-                            <a href="https://www.youtube.com/watch?v=nQJ7wLp9lA4&t=398s" target="_blank" class="value link">https://www.youtube.com/watch?v=nQJ7wLp9lA4&t=398s</a>
-                        </div>
-                        <div class="info-row">
-                            <span class="label">Clip Segment:</span> 
-                            <span class="value">00:06:38 — 00:07:19</span>
-                        </div>
+                        <div class="info-row"><span class="label">Video Link:</span><a href="https://www.youtube.com/watch?v=nQJ7wLp9lA4&t=398s" target="_blank" class="value link">https://www.youtube.com/watch?v=nQJ7wLp9lA4&t=398s</a></div>
+                        <div class="info-row"><span class="label">Clip Segment:</span><span class="value">00:06:38 — 00:07:19</span></div>
                     </div>
                     <button class="pop-btn" onclick="openPopup('nQJ7wLp9lA4', 398, 439)">Play in External Window</button>
                 </div>
@@ -377,18 +336,13 @@
             
             <div class="panel">
                 <div class="video-container">
-                    <div class="iframe-wrap">
-                        <iframe src="https://www.youtube.com/embed/wQR79fVFSy8?start=1219&end=1271&rel=0" allowfullscreen></iframe>
+                    <div class="iframe-wrap" id="wrap-13">
+                        <button class="fullscreen-toggle" onclick="toggleTheater('wrap-13')" title="Toggle Fullscreen">⛶ Fullscreen</button>
+                        <iframe src="https://www.youtube.com/embed/wQR79fVFSy8?start=1219&end=1271&rel=0&enablejsapi=1" allowfullscreen></iframe>
                     </div>
                     <div class="clip-info">
-                        <div class="info-row">
-                            <span class="label">Video Link:</span> 
-                            <a href="https://www.youtube.com/watch?v=wQR79fVFSy8&t=1219s" target="_blank" class="value link">https://www.youtube.com/watch?v=wQR79fVFSy8&t=1219s</a>
-                        </div>
-                        <div class="info-row">
-                            <span class="label">Clip Segment:</span> 
-                            <span class="value">00:20:19 — 00:21:11</span>
-                        </div>
+                        <div class="info-row"><span class="label">Video Link:</span><a href="https://www.youtube.com/watch?v=wQR79fVFSy8&t=1219s" target="_blank" class="value link">https://www.youtube.com/watch?v=wQR79fVFSy8&t=1219s</a></div>
+                        <div class="info-row"><span class="label">Clip Segment:</span><span class="value">00:20:19 — 00:21:11</span></div>
                     </div>
                     <button class="pop-btn" onclick="openPopup('wQR79fVFSy8', 1219, 1271)">Play in External Window</button>
                 </div>
@@ -408,18 +362,13 @@
             
             <div class="panel">
                 <div class="video-container">
-                    <div class="iframe-wrap">
-                        <iframe src="https://www.youtube.com/embed/wQR79fVFSy8?start=1753&end=1767&rel=0" allowfullscreen></iframe>
+                    <div class="iframe-wrap" id="wrap-14">
+                        <button class="fullscreen-toggle" onclick="toggleTheater('wrap-14')" title="Toggle Fullscreen">⛶ Fullscreen</button>
+                        <iframe src="https://www.youtube.com/embed/wQR79fVFSy8?start=1753&end=1767&rel=0&enablejsapi=1" allowfullscreen></iframe>
                     </div>
                     <div class="clip-info">
-                        <div class="info-row">
-                            <span class="label">Video Link:</span> 
-                            <a href="https://www.youtube.com/watch?v=wQR79fVFSy8&t=1753s" target="_blank" class="value link">https://www.youtube.com/watch?v=wQR79fVFSy8&t=1753s</a>
-                        </div>
-                        <div class="info-row">
-                            <span class="label">Clip Segment:</span> 
-                            <span class="value">00:29:13 — 00:29:27</span>
-                        </div>
+                        <div class="info-row"><span class="label">Video Link:</span><a href="https://www.youtube.com/watch?v=wQR79fVFSy8&t=1753s" target="_blank" class="value link">https://www.youtube.com/watch?v=wQR79fVFSy8&t=1753s</a></div>
+                        <div class="info-row"><span class="label">Clip Segment:</span><span class="value">00:29:13 — 00:29:27</span></div>
                     </div>
                     <button class="pop-btn" onclick="openPopup('wQR79fVFSy8', 1753, 1767)">Play in External Window</button>
                 </div>
@@ -439,20 +388,15 @@
             
             <div class="panel">
                 <div class="video-container">
-                    <div class="iframe-wrap">
-                        <iframe src="https://www.youtube.com/embed/3__jvGa5L6Y?start=160&end=246&rel=0" allowfullscreen></iframe>
+                    <div class="iframe-wrap" id="wrap-15">
+                        <button class="fullscreen-toggle" onclick="toggleTheater('wrap-15')" title="Toggle Fullscreen">⛶ Fullscreen</button>
+                        <iframe src="https://www.youtube.com/embed/3__jvGa5L6Y?start=160&end=266&rel=0&enablejsapi=1" allowfullscreen></iframe>
                     </div>
                     <div class="clip-info">
-                        <div class="info-row">
-                            <span class="label">Video Link:</span> 
-                            <a href="https://www.youtube.com/watch?v=3__jvGa5L6Y&t=160s" target="_blank" class="value link">https://www.youtube.com/watch?v=3__jvGa5L6Y&t=160s</a>
-                        </div>
-                        <div class="info-row">
-                            <span class="label">Clip Segment:</span> 
-                            <span class="value">00:02:40 — 00:04:06</span>
-                        </div>
+                        <div class="info-row"><span class="label">Video Link:</span><a href="https://www.youtube.com/watch?v=3__jvGa5L6Y&t=160s" target="_blank" class="value link">https://www.youtube.com/watch?v=3__jvGa5L6Y&t=160s</a></div>
+                        <div class="info-row"><span class="label">Clip Segment:</span><span class="value">00:02:40 — 00:04:26</span></div>
                     </div>
-                    <button class="pop-btn" onclick="openPopup('3__jvGa5L6Y', 160, 246)">Play in External Window</button>
+                    <button class="pop-btn" onclick="openPopup('3__jvGa5L6Y', 160, 266)">Play in External Window</button>
                 </div>
             </div>
         </div>
@@ -463,25 +407,20 @@
                 <div class="eyebrow">Video clip 12</div>
                 <h1>Providence</h1>
                 <p>Refusing ordinary fundraising to depend radically on God's providence.</p>
-                <ul><li>Radical witness of trust.</li></ul>
+                <ul><li>Radical witness of trust.</li><li>Fourth vow of freely giving whole hearted free service to the poorest of the poor.</li></ul>
                 
             </div>
             
             
             <div class="panel">
                 <div class="video-container">
-                    <div class="iframe-wrap">
-                        <iframe src="https://www.youtube.com/embed/3__jvGa5L6Y?start=582&end=687&rel=0" allowfullscreen></iframe>
+                    <div class="iframe-wrap" id="wrap-16">
+                        <button class="fullscreen-toggle" onclick="toggleTheater('wrap-16')" title="Toggle Fullscreen">⛶ Fullscreen</button>
+                        <iframe src="https://www.youtube.com/embed/3__jvGa5L6Y?start=582&end=687&rel=0&enablejsapi=1" allowfullscreen></iframe>
                     </div>
                     <div class="clip-info">
-                        <div class="info-row">
-                            <span class="label">Video Link:</span> 
-                            <a href="https://www.youtube.com/watch?v=3__jvGa5L6Y&t=582s" target="_blank" class="value link">https://www.youtube.com/watch?v=3__jvGa5L6Y&t=582s</a>
-                        </div>
-                        <div class="info-row">
-                            <span class="label">Clip Segment:</span> 
-                            <span class="value">00:09:42 — 00:11:27</span>
-                        </div>
+                        <div class="info-row"><span class="label">Video Link:</span><a href="https://www.youtube.com/watch?v=3__jvGa5L6Y&t=582s" target="_blank" class="value link">https://www.youtube.com/watch?v=3__jvGa5L6Y&t=582s</a></div>
+                        <div class="info-row"><span class="label">Clip Segment:</span><span class="value">00:09:42 — 00:11:27</span></div>
                     </div>
                     <button class="pop-btn" onclick="openPopup('3__jvGa5L6Y', 582, 687)">Play in External Window</button>
                 </div>
@@ -514,18 +453,13 @@
             
             <div class="panel">
                 <div class="video-container">
-                    <div class="iframe-wrap">
-                        <iframe src="https://www.youtube.com/embed/wQR79fVFSy8?start=2396&end=2448&rel=0" allowfullscreen></iframe>
+                    <div class="iframe-wrap" id="wrap-18">
+                        <button class="fullscreen-toggle" onclick="toggleTheater('wrap-18')" title="Toggle Fullscreen">⛶ Fullscreen</button>
+                        <iframe src="https://www.youtube.com/embed/wQR79fVFSy8?start=2396&end=2448&rel=0&enablejsapi=1" allowfullscreen></iframe>
                     </div>
                     <div class="clip-info">
-                        <div class="info-row">
-                            <span class="label">Video Link:</span> 
-                            <a href="https://www.youtube.com/watch?v=wQR79fVFSy8&t=2396s" target="_blank" class="value link">https://www.youtube.com/watch?v=wQR79fVFSy8&t=2396s</a>
-                        </div>
-                        <div class="info-row">
-                            <span class="label">Clip Segment:</span> 
-                            <span class="value">00:39:56 — 00:40:48</span>
-                        </div>
+                        <div class="info-row"><span class="label">Video Link:</span><a href="https://www.youtube.com/watch?v=wQR79fVFSy8&t=2396s" target="_blank" class="value link">https://www.youtube.com/watch?v=wQR79fVFSy8&t=2396s</a></div>
+                        <div class="info-row"><span class="label">Clip Segment:</span><span class="value">00:39:56 — 00:40:48</span></div>
                     </div>
                     <button class="pop-btn" onclick="openPopup('wQR79fVFSy8', 2396, 2448)">Play in External Window</button>
                 </div>
@@ -553,15 +487,39 @@
     <script>
         let current = 0;
         const total = 20;
+
+        function toggleTheater(id) {
+            const el = document.getElementById(id);
+            el.classList.toggle('theater');
+            const btn = el.querySelector('.fullscreen-toggle');
+            btn.innerText = el.classList.contains('theater') ? '✕ Close Fullscreen' : '⛶ Fullscreen';
+        }
+
         function changeSlide(dir) {
+            // Close any open theater mode before changing slide
+            document.querySelectorAll('.iframe-wrap').forEach(el => el.classList.remove('theater'));
+            
             document.getElementById('slide-' + current).classList.remove('active');
             current = (current + dir + total) % total;
             document.getElementById('slide-' + current).classList.add('active');
             document.getElementById('progress').innerText = 'Slide ' + (current + 1) + ' / ' + total;
         }
+
         function openPopup(id, s, e) {
             window.open('https://www.youtube.com/embed/'+id+'?start='+s+'&end='+e+'&autoplay=1', 'player', 'width=900,height=500');
         }
+
+        // Close Theater Mode on Escape key
+        document.addEventListener('keydown', (e) => {
+            if(e.key === "Escape") {
+                document.querySelectorAll('.iframe-wrap').forEach(el => {
+                    el.classList.remove('theater');
+                    el.querySelector('.fullscreen-toggle').innerText = '⛶ Fullscreen';
+                });
+            }
+            if(e.key === "ArrowRight") changeSlide(1);
+            if(e.key === "ArrowLeft") changeSlide(-1);
+        });
     </script>
 </body>
 </html>
